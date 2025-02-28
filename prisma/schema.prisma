@@ -1,0 +1,95 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  userName  String
+  email     String    @unique
+  password  String
+  role      UserRole  @default(USER)
+  status    UserStatus @default(ACTIVE)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  // Relation to bookings
+  bookings  Booking[]
+  
+  @@map("users")
+}
+
+model Campsite {
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  name          String
+  description   String
+  location      String
+  latitude      Float
+  longitude     Float
+  capacity      Int
+  available     Boolean    @default(true)
+  category      Category
+  pricePerNight Float
+  amenities     String[]
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relation to bookings
+  bookings      Booking[]
+
+  // Relation to reviews
+  reviews       Review[]
+
+  @@map("campsites")
+}
+
+model Booking {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId     String   @db.ObjectId
+  campsiteId String   @db.ObjectId
+  checkIn    DateTime
+  checkOut   DateTime
+  status     String   @default("pending") // pending, confirmed, cancelled
+  createdAt  DateTime @default(now())
+
+  // Relations
+  user       User     @relation(fields: [userId], references: [id])
+  campsite   Campsite @relation(fields: [campsiteId], references: [id])
+
+  @@map("bookings")
+}
+
+model Review {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  campsite   Campsite @relation(fields: [campsiteId], references: [id])
+  campsiteId String
+  rating     Int      // 1 to 5 stars
+  comment    String?
+  createdAt  DateTime @default(now())
+
+  @@map("reviews")
+}
+
+enum Category {
+  cabin    @map("cabin")
+  trailer  @map("trailer")
+  tent     @map("tent")
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
