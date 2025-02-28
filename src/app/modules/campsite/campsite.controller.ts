@@ -7,12 +7,14 @@ import { campsiteService } from "./campsite.service";
 const insertImage = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
   const result = await campsiteService.insertIntoDB(req);
   sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: 'Specialty created successfully',
-    data: result,
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'Media uploaded successfully',
+      data: result,
   });
 });
+
+
 
 const createCampsite = catchAsync(async (req: Request, res: Response) => {
   const result = await campsiteService.createCampsiteIntoDB(req.body);

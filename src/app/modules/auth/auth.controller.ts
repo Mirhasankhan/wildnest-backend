@@ -22,12 +22,49 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-;
+//send forgot password otp
+const sendForgotPasswordOtp = catchAsync(
+  async (req: Request, res: Response) => {
+    const email = req.body.email as string;
+    const response = await authService.sendForgotPasswordOtpDB(email);
 
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "OTP send successfully",
+      data: response,
+    });
+  }
+);
 
+// verify forgot password otp code
+const verifyForgotPasswordOtpCode = catchAsync(
+  async (req: Request, res: Response) => {
+    const payload = req.body;
+    const response = await authService.verifyForgotPasswordOtpCodeDB(payload);
 
+    sendResponse(res, {
+      statusCode: 200,
+      success: true,
+      message: "OTP verified successfully.",
+      data: response,
+    });
+  }
+);
 
+// update forgot password
+const resetPassword = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.id;
+  const { newPassword } = req.body;
+  const result = await authService.resetForgotPasswordDB(newPassword, userId);
+  console.log(userId)
 
-export const authController = {  loginUser,
-  
-};
+  sendResponse(res, {
+    statusCode: 200,
+    success: true,
+    message: "Password updated successfully.",
+    data: result,
+  });
+});
+
+export const authController = { loginUser, sendForgotPasswordOtp,verifyForgotPasswordOtpCode,resetPassword };

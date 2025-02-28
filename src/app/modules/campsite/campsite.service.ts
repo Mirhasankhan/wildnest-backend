@@ -6,15 +6,14 @@ import { FileUploadHelper } from "../../../helpers/fileUploadHelper";
 import { Request } from "express";
 
 const insertIntoDB = async (req: Request) => {
-  const file = req.file as IUploadFile;
-
-  if (file) {
-    const uploadedImage = await FileUploadHelper.uploadToCloudinary(file);
-    req.body.image = uploadedImage?.secure_url;
+  const files = req.files as IUploadFile[];
+  if (files && files.length > 0) {
+      const uploadedMedia = await FileUploadHelper.uploadToCloudinary(files);
+      req.body.media = uploadedMedia.map(media => media.secure_url);
   }
-
   return req.body;
 };
+
 
 const createCampsiteIntoDB = async (payload: Campsite) => {
   const existingCampsite = await prisma.campsite.findFirst({

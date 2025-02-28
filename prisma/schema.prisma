@@ -77,6 +77,17 @@ model Review {
   @@map("reviews")
 }
 
+model Otp {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
+  otpCode   String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otps")
+}
+
 enum Category {
   cabin    @map("cabin")
   trailer  @map("trailer")

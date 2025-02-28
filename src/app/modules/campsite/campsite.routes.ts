@@ -1,13 +1,13 @@
-import express, { NextFunction, Request, Response } from "express";
+import express, { Request, Response } from "express";
 import validateRequest from "../../middlewares/validateRequest";
 import auth from "../../middlewares/auth";
 import { campsiteController } from "./campsite.controller";
 import { campsiteValidation } from "./campsite.validation";
 import { UserRole } from "@prisma/client";
 import { FileUploadHelper } from "../../../helpers/fileUploadHelper";
+import prisma from "../../../prisma/prismaClient";
 
 const router = express.Router();
-
 
 router.post(
   "/create/sdfdsf",
@@ -32,6 +32,10 @@ router.delete(
   auth(UserRole.ADMIN),
   campsiteController.deleteCampsite
 );
-router.post("/uploadImage", FileUploadHelper.upload.single("file"), campsiteController.insertImage);
+router.post(
+  "/uploadImage",
+  FileUploadHelper.upload.array("files", 5),
+  campsiteController.insertImage
+);
 
 export const campsiteRoutes = router;
