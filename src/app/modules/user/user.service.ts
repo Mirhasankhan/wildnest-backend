@@ -47,25 +47,25 @@ const getSingleUserIntoDB = async (id: string) => {
   return sanitizedUser;
 };
 
-// //get all users
-// const getUsersIntoDB = async () => {
-//   const users = await prisma.user.findMany();
-//   if (users.length === 0) {
-//     throw new ApiError(404, "Users not found!");
-//   }
-//   const sanitizedUsers = users.map((user) => {
-//     const { password, ...sanitizedUser } = user;
-//     return sanitizedUser;
-//   });
-//   return sanitizedUsers;
-// };
-const getUsersIntoDB = async () => {
-  const users = await prisma.user.findMany();
+const getUsersFromDB = async ({
+  search,
+  role,
+}: {
+  search?: string;
+  role?: string;
+}) => {
+  const users = await prisma.user.findMany({
+    where: {
+      AND: [
+        search ? { userName: { contains: search, mode: "insensitive" } } : {},
+        role ? { role: role as UserRole } : {},
+      ],
+    },
+  });
 
   if (users.length === 0) {
     throw new ApiError(404, "Users not found!");
   }
-
   const sanitizedUsers = users.map(
     ({ password, ...sanitizedUser }) => sanitizedUser
   );
@@ -73,8 +73,25 @@ const getUsersIntoDB = async () => {
   return sanitizedUsers;
 };
 
+const deleteUserFromDB = async (userId: string) => {
+  const existingUser = await getSingleUserIntoDB(userId);
+  if (!existingUser) {
+    throw new ApiError(404, "User not found. Unable to update status.");
+  }
+
+  const newStatus = existingUser.status === "ACTIVE" ? "DELETED" : "ACTIVE";
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { status: newStatus },
+  });
+
+  return;
+};
+
 export const userService = {
+  deleteUserFromDB,
   createUserIntoDB,
   getSingleUserIntoDB,
-  getUsersIntoDB,
+  getUsersFromDB,
 };

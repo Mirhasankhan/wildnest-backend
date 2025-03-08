@@ -19,6 +19,9 @@ const campsiteValidationSchema = z.object({
   amenities: z
     .array(z.string())
     .min(1, "At least one amenity must be provided"),
+  images: z
+    .array(z.string().url("Each image must be a valid URL"))
+    .min(1, "At least one image must be provided"),
 });
 
 export const updateCampsiteSchema = z.object({
@@ -31,6 +34,7 @@ export const updateCampsiteSchema = z.object({
   available: z.boolean().optional(),
   pricePerNight: z.number().optional(),
   amenities: z.array(z.string()).optional(),
+  images: z.array(z.string().url("Each image must be a valid URL")).optional(),
 });
 
 export const campsiteValidation = {

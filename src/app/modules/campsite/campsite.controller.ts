@@ -28,7 +28,6 @@ const createCampsite = catchAsync(async (req: Request, res: Response) => {
 
 const getCampsites = catchAsync(async (req: Request, res: Response) => {
   const { search, limit, pricePerNight, page } = req.query;
-  console.log(req.body)
 
   const limitNum = limit ? parseInt(limit as string, 10) : 10;
   const pageNum = page ? parseInt(page as string, 10) : 1;

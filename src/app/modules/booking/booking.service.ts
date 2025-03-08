@@ -77,6 +77,25 @@ const getSingleBookingFromDB = async (id: string) => {
   return booking;
 };
 
+const approvePendingBookings = async (id: string) => {
+  const booking = await prisma.booking.findUnique({
+    where: { id },
+  });
+  if (!booking) {
+    throw new ApiError(404, "Booking not found!");
+  }
+
+  const result = await prisma.booking.update({
+    where: {
+      id: id,
+    },
+    data: {
+      status: "confirmed",
+    },
+  });
+  return result;
+};
+
 const deletBookingFromDB = async (bookingId: string) => {
   // if (!ObjectId.isValid(userId)) {
   //   throw new ApiError(400, "Invalid user ID format");
@@ -96,5 +115,6 @@ export const bookingService = {
   createBookingIntoDB,
   getAllBookings,
   getSingleBookingFromDB,
+  approvePendingBookings,
   deletBookingFromDB
 };

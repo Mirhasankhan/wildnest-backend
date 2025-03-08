@@ -7,7 +7,7 @@ export interface IUser {
 }
 
 export interface IUpdateUser {
-  userNa?: string;
+  userName?: string;
   mobile?: string;
   avatar?: string;
   role?: UserRole;

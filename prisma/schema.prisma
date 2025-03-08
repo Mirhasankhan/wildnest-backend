@@ -38,6 +38,7 @@ model Campsite {
   category      Category
   pricePerNight Float
   amenities     String[]
+  images        String[]   // ✅ New field for multiple images
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
 

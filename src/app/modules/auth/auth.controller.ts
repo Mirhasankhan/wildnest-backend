@@ -57,7 +57,6 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user.id;
   const { newPassword } = req.body;
   const result = await authService.resetForgotPasswordDB(newPassword, userId);
-  console.log(userId)
 
   sendResponse(res, {
     statusCode: 200,

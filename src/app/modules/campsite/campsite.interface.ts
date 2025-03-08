@@ -6,12 +6,13 @@ export interface TCampsite {
   location: string;
   latitude: number;
   longitude: number;
-  category: Category;    capacity: number;
+  category: Category;
+  capacity: number;
   available: boolean;
   pricePerNight: number;
-  amenities: string[];  
+  amenities: string[];
+  images: string[];  
 }
-
 
 export interface TUpdateCampsite {
   name?: string;
@@ -23,5 +24,5 @@ export interface TUpdateCampsite {
   available?: boolean;
   pricePerNight?: number;
   amenities?: string[];
+  images?: string[];  
 }
-

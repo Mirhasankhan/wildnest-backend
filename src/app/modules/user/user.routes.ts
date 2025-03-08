@@ -11,12 +11,12 @@ router.post(
   "/create",
   UserControllers.createUser  
 );
-router.get("/", auth(UserRole.ADMIN), UserControllers.getUsers);
+router.get("/",auth(UserRole.ADMIN), UserControllers.getUsers);
 // router.get("/locations", UserControllers.getUserLocations);
 router.get("/:id", auth(), UserControllers.getSingleUser);
 // router.get("/location/:id", UserControllers.getUserLocation);
 // router.put("/:id", validateRequest(userValidation.userUpdateValidationSchema),auth(UserRole.ADMIN), UserControllers.updateUser);
 // router.put("/:id", validateRequest(userValidation.userUpdateValidationSchema),auth(UserRole.ADMIN), UserControllers.createUser);
-// router.delete("/:id", auth(UserRole.ADMIN), UserControllers.deleteUser);
+router.delete("/:id", UserControllers.deleteUser);
 
 export const userRoutes = router;

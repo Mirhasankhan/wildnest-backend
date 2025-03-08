@@ -1,11 +1,10 @@
 import express from "express";
-import validateRequest from "../../middlewares/validateRequest";
 import auth from "../../middlewares/auth";
-import { UserRole } from "@prisma/client";
 import { revieController } from "./review.controller";
 
 const router = express.Router();
 
-router.post("/create", revieController.createReview);
+router.post("/create", auth(), revieController.createReview);
+router.get("/reviews", revieController.getReviews);
 
 export const reviewRoutes = router;

@@ -4,40 +4,29 @@ import sendResponse from "../../../shared/sendResponse";
 import { reviewService } from "./review.service";
 
 const createReview = catchAsync(async (req: Request, res: Response) => {
-  const result = await reviewService.createReviewIntoDB(req.body);
+  const id = req.user.id;
+ 
+  const result = await reviewService.createReviewIntoDB(id, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 201,
-    message: "Campsite Booked Successfully",
+    message: "Review provied successfully",
     data: result,
   });
 });
 
-const getBookings = catchAsync(async (req: Request, res: Response) => {
-  const campsites = await reviewService.getAllBookings(
-    req.query.email as string
-  );
-  sendResponse(res, {
-    success: true,
-    statusCode: 200,
-    message: "Bookings retrived successfully",
-    data: campsites,
-  });
-});
+const getReviews = catchAsync(async (req: Request, res: Response) => {
+  const reviews = await reviewService.getAllReviewsFromDB();
 
-//get single user
-const getSingleBooking = catchAsync(async (req: Request, res: Response) => {
-  const campsite = await reviewService.getSingleBookingFromDB(req.params.id);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "Booking retrived successfully",
-    data: campsite,
+    message: "Reviews retrieved successfully",
+    data: reviews,
   });
 });
 
 export const revieController = {
   createReview,
-  getBookings,
-  getSingleBooking,
+  getReviews
 };

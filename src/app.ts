@@ -20,7 +20,11 @@ prisma
     console.error("Failed to connect to the database:", error);
   });
 
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:3000", "http://localhost:3001"],
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
@@ -32,8 +36,6 @@ app.get("/", (req: Request, res: Response) => {
   });
 });
 
-
-
 // Router setup
 app.use("/api/v1", router);
 
@@ -44,7 +46,7 @@ app.use(GlobalErrorHandler);
 //   if (!req.file) {
 //     return res.status(400).json({ success: false, message: "No file uploaded" });
 //   }
-  
+
 //   res.json({ success: true, message: "File uploaded successfully", filename: req.file.filename });
 // });
 

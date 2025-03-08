@@ -34,6 +34,18 @@ const getSingleBooking = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+const approveBooking = catchAsync(async (req: Request, res: Response) => {
+  const booking = await bookingService.approvePendingBookings(req.body.bookingId);
+  sendResponse(res, {
+    success: true,
+    statusCode: 200,
+    message: "Booking confirmed successfully",
+    data: booking,
+  });
+});
+
+
 const deleteBooking = catchAsync(async (req: any, res: Response) => { 
   await bookingService.deletBookingFromDB(req.params.id);
   sendResponse(res, {
@@ -47,5 +59,6 @@ export const bookkingController = {
   createBooking,
   getBookings,
   getSingleBooking,
+  approveBooking,
   deleteBooking
 };

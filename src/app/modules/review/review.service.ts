@@ -2,22 +2,26 @@ import { Booking, Campsite } from "@prisma/client";
 import prisma from "../../../prisma/prismaClient";
 import ApiError from "../../../errors/ApiErrors";
 
-const createReviewIntoDB = async (payload: {
-  campsiteId: string;
-  rating: number;
-  comment?: string;
-}) => {
-  // const existingBooking = await prisma.booking.findFirst({
-  //   where: {
-  //     campsiteId: payload.campsiteId,
-  //   },
-  // });
+const createReviewIntoDB = async (
+  userId: string,
+  payload: {
+    campsiteId: string;
+    rating: number;
+    comment?: string;
+  }
+) => {
+  const existingBooking = await prisma.booking.findFirst({
+    where: {
+      campsiteId: payload.campsiteId,
+      userId: userId,
+      status: "pending",
+    },
+  });
 
-  // if (!existingBooking) {
-  //   throw new ApiError(400, "You can only review a campsite you have booked.");
-  // }
+  if (!existingBooking) {
+    throw new Error("You can only review a campsite if you have booked it.");
+  }
 
-  // Create the review if a valid booking exists
   const review = await prisma.review.create({
     data: {
       ...payload,
@@ -27,69 +31,17 @@ const createReviewIntoDB = async (payload: {
   return { review };
 };
 
-const getAllBookings = async (email: string) => {
-  const bookings = await prisma.booking.findMany({
-    where: {
-      user: {
-        email: email,
-      },
-    },
-    include: {
-      user: {
-        select: {
-          email: true,
-          id: true,
-          userName: true,
-        },
-      },
-    },
-  });
+const getAllReviewsFromDB = async () => {
+  const reviews = await prisma.review.findMany();
 
-  if (bookings.length === 0) {
-    throw new ApiError(404, "Bookings not found!");
+  if (reviews.length === 0) {
+    throw new ApiError(404, "Reviews not found!");
   }
 
-  return bookings;
-};
-
-//get single user
-const getSingleBookingFromDB = async (id: string) => {
-  const booking = await prisma.booking.findUnique({
-    where: { id },
-    include: {
-      user: {
-        select: {
-          email: true,
-          userName: true,
-        },
-      },
-    },
-  });
-  if (!booking) {
-    throw new ApiError(404, "Booking not found!");
-  }
-
-  return booking;
-};
-
-const deletBookingFromDB = async (bookingId: string) => {
-  // if (!ObjectId.isValid(userId)) {
-  //   throw new ApiError(400, "Invalid user ID format");
-  // }
-
-  const existingBooking = await getSingleBookingFromDB(bookingId);
-  if (!existingBooking) {
-    throw new ApiError(404, "Booking not found for delete this");
-  }
-  await prisma.booking.delete({
-    where: { id: bookingId },
-  });
-  return;
+  return reviews;
 };
 
 export const reviewService = {
   createReviewIntoDB,
-  getAllBookings,
-  getSingleBookingFromDB,
-  deletBookingFromDB,
+  getAllReviewsFromDB
 };
