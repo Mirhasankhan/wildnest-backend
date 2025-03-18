@@ -4,6 +4,7 @@ import { authRoute } from "../modules/auth/auth.routes";
 import { campsiteRoutes } from "../modules/campsite/campsite.routes";
 import { bookingRoutes } from "../modules/booking/booking.routes";
 import { reviewRoutes } from "../modules/review/review.routes";
+import { paymentRoutes } from "../modules/payment/payment.routes";
 
 const router = express.Router();
 
@@ -27,6 +28,10 @@ const moduleRoutes = [
   {
     path: "/review",
     route: reviewRoutes,
+  },
+  {
+    path: "/payment",
+    route: paymentRoutes,
   },
 ];
 

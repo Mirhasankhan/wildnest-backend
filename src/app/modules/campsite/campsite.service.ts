@@ -16,7 +16,6 @@ const insertIntoDB = async (req: Request) => {
 
 
 const createCampsiteIntoDB = async (payload: Campsite) => {
-
   const existingCampsite = await prisma.campsite.findFirst({
     where: {
       name: payload.name,

@@ -1,6 +1,7 @@
-import { Booking, Campsite } from "@prisma/client";
+import { Booking } from "@prisma/client";
 import prisma from "../../../prisma/prismaClient";
 import ApiError from "../../../errors/ApiErrors";
+import { differenceInDays } from "date-fns";
 
 const createBookingIntoDB = async (payload: Booking) => {
   const existingBooking = await prisma.booking.findFirst({
@@ -22,10 +23,22 @@ const createBookingIntoDB = async (payload: Booking) => {
     );
   }
 
-  // Create the booking if no conflict exists
+  const duration = differenceInDays(
+    new Date(payload.checkOut),
+    new Date(payload.checkIn)
+  );
+
+  if (duration > 7) {
+    throw new ApiError(400, "Camping duration cannot exceed 7 days");
+  }
+
+  // const extraPeople = payload.numberOfPeople > 10 ? payload.numberOfPeople - 10 : 0;
+  // const extraCost = extraPeople * 2 * duration;
+
   const booking = await prisma.booking.create({
     data: {
       ...payload,
+      // totalCost: payload.baseCost + extraCost,
     },
   });
 
@@ -116,5 +129,5 @@ export const bookingService = {
   getAllBookings,
   getSingleBookingFromDB,
   approvePendingBookings,
-  deletBookingFromDB
+  deletBookingFromDB,
 };
