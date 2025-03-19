@@ -5,19 +5,21 @@ import { campsiteController } from "./campsite.controller";
 import { campsiteValidation } from "./campsite.validation";
 import { UserRole } from "@prisma/client";
 import { FileUploadHelper } from "../../../helpers/fileUploadHelper";
+import { parseBodyData } from "../../middlewares/parseBodyData";
 
 const router = express.Router();
 
 router.post(
-  "/create/sdfdsf",
+  "/create",
   // auth(UserRole.ADMIN),
-  validateRequest(campsiteValidation.campsiteValidationSchema),
+  FileUploadHelper.upload.array("files", 5),
+  parseBodyData,
+
+  // validateRequest(campsiteValidation.campsiteValidationSchema),
+
   campsiteController.createCampsite
 );
-router.get(
-  "/allCampsites",
-  campsiteController.getCampsites
-);
+router.get("/allCampsites", campsiteController.getCampsites);
 router.get("/campsite/:id", auth(), campsiteController.getSingleCampsite);
 router.put(
   "/:id",

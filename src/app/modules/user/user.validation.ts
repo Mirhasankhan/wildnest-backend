@@ -1,10 +1,8 @@
 import { z } from "zod";
 
 const userRegisterValidationSchema = z.object({
-  userName: z.string().min(2, "User name must be at least 2 characters long"), 
+  userName: z.string().min(2, "User name must be at least 2 characters long"),
   email: z.string().email("Invalid email address"),
-  mobile: z.string().min(10, "Mobile number at least 10 digit long").optional(),
-  avatar: z.string().optional(),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters long")
@@ -19,14 +17,16 @@ const userUpdateValidationSchema = z.object({
     .string()
     .min(2, "user name must be at least 2 characters long")
     .optional(),
- 
-  mobile: z.string().min(10, "Mobile Number at least 10 Digit long").optional(),
+  contact: z
+    .string()
+    .min(7, "Mobile Number must be at least 7 digits long")
+    .max(15, "Mobile Number must be at most 15 digits long")
+    .optional(),
   role: z.enum(["ADMIN", "USER"]).optional(),
-  status: z.enum(["ACTIVE", "BLOCKED", "DELETED"]).optional(),
+  profileImg: z.string().url("Profile image must be a valid URL").optional(),
 });
 
 export const userValidation = {
   userRegisterValidationSchema,
   userUpdateValidationSchema,
 };
-

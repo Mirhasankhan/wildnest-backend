@@ -8,14 +8,14 @@ import { Request } from "express";
 const insertIntoDB = async (req: Request) => {
   const files = req.files as IUploadFile[];
   if (files && files.length > 0) {
-      const uploadedMedia = await FileUploadHelper.uploadToCloudinary(files);
-      req.body.media = uploadedMedia.map(media => media.secure_url);
+    const uploadedMedia = await FileUploadHelper.uploadToCloudinary(files);
+    req.body.media = uploadedMedia.map((media) => media.secure_url);
   }
   return req.body;
 };
 
-
-const createCampsiteIntoDB = async (payload: Campsite) => {
+const createCampsiteIntoDB = async (req: Request) => {
+  const payload = req.body;
   const existingCampsite = await prisma.campsite.findFirst({
     where: {
       name: payload.name,
@@ -25,6 +25,15 @@ const createCampsiteIntoDB = async (payload: Campsite) => {
 
   if (existingCampsite) {
     throw new ApiError(409, "A campsite with this name already exists");
+  }
+
+  const files = req.files as IUploadFile[];
+  if (files && files.length > 0) {
+    const uploadedMedia = await FileUploadHelper.uploadToCloudinary(files);
+    payload.images = uploadedMedia.map((media) => media.secure_url);
+  }
+  if (!payload.images) {
+    throw new ApiError(409, "NO image Uploaded");
   }
 
   const campsite = await prisma.campsite.create({
@@ -37,6 +46,29 @@ const createCampsiteIntoDB = async (payload: Campsite) => {
     campsite: campsite,
   };
 };
+
+// const createCampsiteIntoDB = async (payload: Campsite) => {
+//   const existingCampsite = await prisma.campsite.findFirst({
+//     where: {
+//       name: payload.name,
+//       location: payload.location,
+//     },
+//   });
+
+//   if (existingCampsite) {
+//     throw new ApiError(409, "A campsite with this name already exists");
+//   }
+
+//   const campsite = await prisma.campsite.create({
+//     data: {
+//       ...payload,
+//     },
+//   });
+
+//   return {
+//     campsite: campsite,
+//   };
+// };
 
 const getAllCampsites = async ({
   search,
@@ -129,5 +161,5 @@ export const campsiteService = {
   getSingleCampsite,
   deleteCampsiteIntoDB,
   updateCampsiteIntoDB,
-  insertIntoDB
+  insertIntoDB,
 };

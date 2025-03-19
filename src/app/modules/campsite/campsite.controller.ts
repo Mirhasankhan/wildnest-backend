@@ -1,23 +1,24 @@
 import { NextFunction, Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
-import httpStatus from 'http-status';
+import httpStatus from "http-status";
 import { campsiteService } from "./campsite.service";
 
-const insertImage = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-  const result = await campsiteService.insertIntoDB(req);
-  sendResponse(res, {
+const insertImage = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const result = await campsiteService.insertIntoDB(req);
+    sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'Media uploaded successfully',
+      message: "Media uploaded successfully",
       data: result,
-  });
-});
-
-
+    });
+  }
+);
 
 const createCampsite = catchAsync(async (req: Request, res: Response) => {
-  const result = await campsiteService.createCampsiteIntoDB(req.body);
+
+  const result = await campsiteService.createCampsiteIntoDB(req);
   sendResponse(res, {
     success: true,
     statusCode: 201,
@@ -36,7 +37,9 @@ const getCampsites = catchAsync(async (req: Request, res: Response) => {
   const campsites = await campsiteService.getAllCampsites({
     search: search as string | undefined,
     limit: limitNum,
-    pricePerNight: pricePerNight ? parseFloat(pricePerNight as string) : undefined,
+    pricePerNight: pricePerNight
+      ? parseFloat(pricePerNight as string)
+      : undefined,
     skip,
   });
 
@@ -47,7 +50,6 @@ const getCampsites = catchAsync(async (req: Request, res: Response) => {
     data: campsites,
   });
 });
-
 
 //get single user
 const getSingleCampsite = catchAsync(async (req: Request, res: Response) => {
@@ -60,7 +62,7 @@ const getSingleCampsite = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteCampsite = catchAsync(async (req: any, res: Response) => { 
+const deleteCampsite = catchAsync(async (req: any, res: Response) => {
   await campsiteService.deleteCampsiteIntoDB(req.params.id);
   sendResponse(res, {
     success: true,
@@ -89,5 +91,5 @@ export const campsiteController = {
   getSingleCampsite,
   deleteCampsite,
   updateCampsite,
-  insertImage
+  insertImage,
 };

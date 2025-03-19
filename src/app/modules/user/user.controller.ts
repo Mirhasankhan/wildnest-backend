@@ -41,18 +41,27 @@ const getSingleUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const deleteUser = catchAsync(async (req: any, res: Response) => {
-  await userService.deleteUserFromDB(req.params.id);
+const updateUser = catchAsync(async (req: any, res: Response) => {
+  const userId = req.user.id;
+  await userService.updateUserFromDB(userId, req.body);
   sendResponse(res, {
     success: true,
     statusCode: 200,
-    message: "User deleted successfully",
+    message: "User Updated successfully",
   });
 });
+// const deleteUser = catchAsync(async (req: any, res: Response) => {
+//   await userService.deleteUserFromDB(req.params.id);
+//   sendResponse(res, {
+//     success: true,
+//     statusCode: 200,
+//     message: "User deleted successfully",
+//   });
+// });
 
 export const UserControllers = {
   createUser,
   getUsers,
   getSingleUser,
-  deleteUser
+  updateUser,
 };
