@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.bookingService = void 0;
 const prismaClient_1 = __importDefault(require("../../../prisma/prismaClient"));
 const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
+const date_fns_1 = require("date-fns");
 const createBookingIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
     const existingBooking = yield prismaClient_1.default.booking.findFirst({
         where: {
@@ -30,7 +31,12 @@ const createBookingIntoDB = (payload) => __awaiter(void 0, void 0, void 0, funct
     if (existingBooking) {
         throw new ApiErrors_1.default(409, "This campsite is already booked for the selected dates");
     }
-    // Create the booking if no conflict exists
+    const duration = (0, date_fns_1.differenceInDays)(new Date(payload.checkOut), new Date(payload.checkIn));
+    if (duration > 7) {
+        throw new ApiErrors_1.default(400, "Camping duration cannot exceed 7 days");
+    }
+    // const extraPeople = payload.numberOfPeople > 10 ? payload.numberOfPeople - 10 : 0;
+    // const extraCost = extraPeople * 2 * duration;
     const booking = yield prismaClient_1.default.booking.create({
         data: Object.assign({}, payload),
     });
@@ -111,5 +117,5 @@ exports.bookingService = {
     getAllBookings,
     getSingleBookingFromDB,
     approvePendingBookings,
-    deletBookingFromDB
+    deletBookingFromDB,
 };

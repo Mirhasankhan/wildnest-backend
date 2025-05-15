@@ -33,12 +33,41 @@ const loginUserIntoDB = async (payload: any) => {
     config.jwt.expires_in as string
   );
 
-  const { password, status, createdAt, updatedAt, ...userInfo } = user;
+  const { password, createdAt, updatedAt, ...userInfo } = user;
 
   return {
     accessToken,
-    userInfo    
+    userInfo,
   };
+};
+
+const socialLoginIntoDB = async (userName: string, email: string) => {
+  let user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+  });
+
+  const password = Math.random().toString(36).slice(-8);
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  if (!user) {
+    user = await prisma.user.create({
+      data: {
+        userName: userName,
+        email: email,
+        password: hashedPassword,
+      },
+    });
+  }
+
+  const accessToken = jwtHelpers.generateToken(
+    { id: user.id, email: user.email },
+    config.jwt.jwt_secret as string,
+    config.jwt.expires_in as string
+  );
+
+  return { accessToken, user };
 };
 
 //send forgot password otp
@@ -140,7 +169,7 @@ const resetForgotPasswordDB = async (newPassword: string, userId: string) => {
   if (!existingUser) {
     throw new ApiError(404, "user not found");
   }
-  
+
   const email = existingUser.email as string;
   const hashedPassword = await bcrypt.hash(
     newPassword,
@@ -163,5 +192,6 @@ export const authService = {
   loginUserIntoDB,
   sendForgotPasswordOtpDB,
   verifyForgotPasswordOtpCodeDB,
-  resetForgotPasswordDB
+  resetForgotPasswordDB,
+  socialLoginIntoDB
 };

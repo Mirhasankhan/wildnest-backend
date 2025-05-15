@@ -74,21 +74,33 @@ const getUsersFromDB = (_a) => __awaiter(void 0, [_a], void 0, function* ({ sear
     });
     return sanitizedUsers;
 });
-const deleteUserFromDB = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const updateUserFromDB = (userId, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const existingUser = yield getSingleUserIntoDB(userId);
     if (!existingUser) {
-        throw new ApiErrors_1.default(404, "User not found. Unable to update status.");
+        throw new ApiErrors_1.default(404, "User not found. Unable to update");
     }
-    const newStatus = existingUser.status === "ACTIVE" ? "DELETED" : "ACTIVE";
-    yield prismaClient_1.default.user.update({
+    const updatedUser = yield prismaClient_1.default.user.update({
         where: { id: userId },
-        data: { status: newStatus },
+        data: Object.assign({}, payload),
     });
-    return;
+    return updatedUser;
 });
+// const deleteUserFromDB = async (userId: string) => {
+//   const existingUser = await getSingleUserIntoDB(userId);
+//   if (!existingUser) {
+//     throw new ApiError(404, "User not found. Unable to update status.");
+//   }
+//   const newStatus = existingUser.status === "ACTIVE" ? "DELETED" : "ACTIVE";
+//   await prisma.user.update({
+//     where: { id: userId },
+//     data: { status: newStatus },
+//   });
+//   return;
+// };
 exports.userService = {
-    deleteUserFromDB,
+    // deleteUserFromDB,
     createUserIntoDB,
     getSingleUserIntoDB,
     getUsersFromDB,
+    updateUserFromDB,
 };

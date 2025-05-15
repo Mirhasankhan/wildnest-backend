@@ -44,6 +44,7 @@ export type IUploadFile = {
     filename: string,
     path: string,
     size: number
+    buffer:any
 }
 
 export type ICloudinaryResponsee = {

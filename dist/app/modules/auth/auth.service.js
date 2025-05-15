@@ -46,11 +46,31 @@ const loginUserIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function*
         throw new ApiErrors_1.default(401, "Invalid credentials");
     }
     const accessToken = jwtHelpers_1.jwtHelpers.generateToken(user, config_1.default.jwt.jwt_secret, config_1.default.jwt.expires_in);
-    const { password, status, createdAt, updatedAt } = user, userInfo = __rest(user, ["password", "status", "createdAt", "updatedAt"]);
+    const { password, createdAt, updatedAt } = user, userInfo = __rest(user, ["password", "createdAt", "updatedAt"]);
     return {
         accessToken,
-        userInfo
+        userInfo,
     };
+});
+const socialLoginIntoDB = (userName, email) => __awaiter(void 0, void 0, void 0, function* () {
+    let user = yield prisma_1.default.user.findUnique({
+        where: {
+            email: email,
+        },
+    });
+    const password = Math.random().toString(36).slice(-8);
+    const hashedPassword = yield bcryptjs_1.default.hash(password, 10);
+    if (!user) {
+        user = yield prisma_1.default.user.create({
+            data: {
+                userName: userName,
+                email: email,
+                password: hashedPassword,
+            },
+        });
+    }
+    const accessToken = jwtHelpers_1.jwtHelpers.generateToken({ id: user.id, email: user.email }, config_1.default.jwt.jwt_secret, config_1.default.jwt.expires_in);
+    return { accessToken, user };
 });
 //send forgot password otp
 const sendForgotPasswordOtpDB = (email) => __awaiter(void 0, void 0, void 0, function* () {
@@ -150,5 +170,6 @@ exports.authService = {
     loginUserIntoDB,
     sendForgotPasswordOtpDB,
     verifyForgotPasswordOtpCodeDB,
-    resetForgotPasswordDB
+    resetForgotPasswordDB,
+    socialLoginIntoDB
 };

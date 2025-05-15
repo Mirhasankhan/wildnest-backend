@@ -18,13 +18,67 @@ const ApiErrors_1 = __importDefault(require("../../../errors/ApiErrors"));
 const fileUploadHelper_1 = require("../../../helpers/fileUploadHelper");
 const insertIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
     const files = req.files;
-    if (files && files.length > 0) {
-        const uploadedMedia = yield fileUploadHelper_1.FileUploadHelper.uploadToCloudinary(files);
-        req.body.media = uploadedMedia.map(media => media.secure_url);
+    if (!files || files.length === 0) {
+        throw new Error("No files uploaded");
     }
-    return req.body;
+    const uploadedMedia = yield fileUploadHelper_1.FileUploadHelper.uploadToCloudinary(files);
+    const newImageUrls = uploadedMedia.map((media) => media.secure_url);
+    const existingImage = yield prismaClient_1.default.image.findFirst();
+    if (!existingImage) {
+        return yield prismaClient_1.default.image.create({
+            data: {
+                imageUrls: newImageUrls,
+            },
+        });
+    }
+    return yield prismaClient_1.default.image.update({
+        where: { id: existingImage.id },
+        data: {
+            imageUrls: {
+                push: newImageUrls,
+            },
+        },
+    });
 });
-const createCampsiteIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+const deleteImageFromDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    const imageUrlToDelete = req.body.imageUrl;
+    if (!imageUrlToDelete) {
+        throw new Error("No image URL provided for deletion");
+    }
+    const existingImage = yield prismaClient_1.default.image.findFirst();
+    if (!existingImage) {
+        throw new Error("Image document not found");
+    }
+    const updatedImageUrls = existingImage.imageUrls.filter((url) => url !== imageUrlToDelete);
+    const updatedImage = yield prismaClient_1.default.image.update({
+        where: { id: existingImage.id },
+        data: {
+            imageUrls: updatedImageUrls,
+        },
+    });
+    return updatedImage;
+});
+// const getImagesFromDB = async () => {
+//   const images = await prisma.image.findMany({});
+//   return images;
+// };
+const getImagesFromDB = (...args_1) => __awaiter(void 0, [...args_1], void 0, function* (page = 1) {
+    const limit = 4;
+    const imageRecord = yield prismaClient_1.default.image.findFirst();
+    if (!imageRecord || !Array.isArray(imageRecord.imageUrls)) {
+        return [];
+    }
+    const start = (page - 1) * limit;
+    const end = start + limit;
+    const paginatedUrls = imageRecord.imageUrls.slice(start, end);
+    const totalPages = Math.ceil(imageRecord.imageUrls.length / limit);
+    return {
+        paginatedUrls,
+        totalPages
+    };
+});
+const createCampsiteIntoDB = (req) => __awaiter(void 0, void 0, void 0, function* () {
+    const payload = req.body;
     const existingCampsite = yield prismaClient_1.default.campsite.findFirst({
         where: {
             name: payload.name,
@@ -34,6 +88,14 @@ const createCampsiteIntoDB = (payload) => __awaiter(void 0, void 0, void 0, func
     if (existingCampsite) {
         throw new ApiErrors_1.default(409, "A campsite with this name already exists");
     }
+    const files = req.files;
+    if (files && files.length > 0) {
+        const uploadedMedia = yield fileUploadHelper_1.FileUploadHelper.uploadToCloudinary(files);
+        payload.images = uploadedMedia.map((media) => media.secure_url);
+    }
+    if (!payload.images) {
+        throw new ApiErrors_1.default(409, "NO image Uploaded");
+    }
     const campsite = yield prismaClient_1.default.campsite.create({
         data: Object.assign({}, payload),
     });
@@ -41,6 +103,25 @@ const createCampsiteIntoDB = (payload) => __awaiter(void 0, void 0, void 0, func
         campsite: campsite,
     };
 });
+// const createCampsiteIntoDB = async (payload: Campsite) => {
+//   const existingCampsite = await prisma.campsite.findFirst({
+//     where: {
+//       name: payload.name,
+//       location: payload.location,
+//     },
+//   });
+//   if (existingCampsite) {
+//     throw new ApiError(409, "A campsite with this name already exists");
+//   }
+//   const campsite = await prisma.campsite.create({
+//     data: {
+//       ...payload,
+//     },
+//   });
+//   return {
+//     campsite: campsite,
+//   };
+// };
 const getAllCampsites = (_a) => __awaiter(void 0, [_a], void 0, function* ({ search, limit = 10, pricePerNight, skip = 0, }) {
     const campsites = yield prismaClient_1.default.campsite.findMany({
         where: {
@@ -113,5 +194,7 @@ exports.campsiteService = {
     getSingleCampsite,
     deleteCampsiteIntoDB,
     updateCampsiteIntoDB,
-    insertIntoDB
+    insertIntoDB,
+    deleteImageFromDB,
+    getImagesFromDB,
 };

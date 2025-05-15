@@ -1,37 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || (function () {
-    var ownKeys = function(o) {
-        ownKeys = Object.getOwnPropertyNames || function (o) {
-            var ar = [];
-            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
-            return ar;
-        };
-        return ownKeys(o);
-    };
-    return function (mod) {
-        if (mod && mod.__esModule) return mod;
-        var result = {};
-        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
-        __setModuleDefault(result, mod);
-        return result;
-    };
-})();
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -48,21 +15,14 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.FileUploadHelper = void 0;
 const cloudinary_1 = require("cloudinary");
 const multer_1 = __importDefault(require("multer"));
-const fs = __importStar(require("fs"));
+const streamifier_1 = __importDefault(require("streamifier"));
 const config_1 = __importDefault(require("../config"));
 cloudinary_1.v2.config({
     cloud_name: config_1.default.cloudinary.cloud_name,
     api_key: config_1.default.cloudinary.api_key,
     api_secret: config_1.default.cloudinary.api_secret,
 });
-const storage = multer_1.default.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, "uploads/");
-    },
-    filename: function (req, file, cb) {
-        cb(null, file.originalname);
-    },
-});
+const storage = multer_1.default.memoryStorage();
 const upload = (0, multer_1.default)({
     storage: storage,
     fileFilter: (req, file, cb) => {
@@ -85,17 +45,17 @@ const upload = (0, multer_1.default)({
 const uploadToCloudinary = (files) => __awaiter(void 0, void 0, void 0, function* () {
     const uploadPromises = files.map((file) => {
         return new Promise((resolve, reject) => {
-            cloudinary_1.v2.uploader.upload(file.path, {
+            const stream = cloudinary_1.v2.uploader.upload_stream({
                 resource_type: file.mimetype.startsWith("video") ? "video" : "image",
             }, (error, result) => {
-                fs.unlinkSync(file.path);
-                if (error) {
-                    reject(error);
+                if (error || !result) {
+                    reject(error || new Error("Cloudinary upload failed"));
                 }
                 else {
                     resolve(result);
                 }
             });
+            streamifier_1.default.createReadStream(file.buffer).pipe(stream);
         });
     });
     return Promise.all(uploadPromises);

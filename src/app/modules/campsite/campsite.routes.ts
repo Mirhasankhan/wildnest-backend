@@ -37,5 +37,11 @@ router.post(
   FileUploadHelper.upload.array("files", 5),
   campsiteController.insertImage
 );
+router.get(
+  "/allImages",
+
+  campsiteController.getImages
+);
+router.delete("/image/delete", campsiteController.deleteImage);
 
 export const campsiteRoutes = router;

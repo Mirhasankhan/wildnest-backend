@@ -22,12 +22,40 @@ const insertImage = (0, catchAsync_1.default)((req, res, next) => __awaiter(void
     (0, sendResponse_1.default)(res, {
         statusCode: http_status_1.default.OK,
         success: true,
-        message: 'Media uploaded successfully',
+        message: "Media uploaded successfully",
+        data: result,
+    });
+}));
+// const getImages = catchAsync(async (req: Request, res: Response) => {
+//   const result = await campsiteService.getImagesFromDB();
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: "Media Retrieved successfully",
+//     data: result,
+//   });
+// });
+const getImages = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const page = parseInt(req.query.page) || 2;
+    const result = yield campsite_service_1.campsiteService.getImagesFromDB(page);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Media Retrieved successfully",
+        data: result,
+    });
+}));
+const deleteImage = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield campsite_service_1.campsiteService.deleteImageFromDB(req);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_1.default.OK,
+        success: true,
+        message: "Media Deleted successfully",
         data: result,
     });
 }));
 const createCampsite = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield campsite_service_1.campsiteService.createCampsiteIntoDB(req.body);
+    const result = yield campsite_service_1.campsiteService.createCampsiteIntoDB(req);
     (0, sendResponse_1.default)(res, {
         success: true,
         statusCode: 201,
@@ -43,7 +71,9 @@ const getCampsites = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     const campsites = yield campsite_service_1.campsiteService.getAllCampsites({
         search: search,
         limit: limitNum,
-        pricePerNight: pricePerNight ? parseFloat(pricePerNight) : undefined,
+        pricePerNight: pricePerNight
+            ? parseFloat(pricePerNight)
+            : undefined,
         skip,
     });
     (0, sendResponse_1.default)(res, {
@@ -87,5 +117,7 @@ exports.campsiteController = {
     getSingleCampsite,
     deleteCampsite,
     updateCampsite,
-    insertImage
+    insertImage,
+    deleteImage,
+    getImages,
 };

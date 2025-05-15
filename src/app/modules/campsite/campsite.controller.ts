@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync";
 import sendResponse from "../../../shared/sendResponse";
 import httpStatus from "http-status";
 import { campsiteService } from "./campsite.service";
+import prisma from "../../../prisma/prismaClient";
 
 const insertImage = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -15,9 +16,41 @@ const insertImage = catchAsync(
     });
   }
 );
+// const getImages = catchAsync(async (req: Request, res: Response) => {
+//   const result = await campsiteService.getImagesFromDB();
+//   sendResponse(res, {
+//     statusCode: httpStatus.OK,
+//     success: true,
+//     message: "Media Retrieved successfully",
+//     data: result,
+//   });
+// });
+const getImages = catchAsync(async (req: Request, res: Response) => {
+  const page = parseInt(req.query.page as string) || 2;
+  
+  const result = await campsiteService.getImagesFromDB(page);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Media Retrieved successfully",
+    data: result,
+  });
+});
+
+
+
+const deleteImage = catchAsync(async (req: Request, res: Response) => {
+  const result = await campsiteService.deleteImageFromDB(req);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Media Deleted successfully",
+    data: result,
+  });
+});
 
 const createCampsite = catchAsync(async (req: Request, res: Response) => {
-
   const result = await campsiteService.createCampsiteIntoDB(req);
   sendResponse(res, {
     success: true,
@@ -92,4 +125,6 @@ export const campsiteController = {
   deleteCampsite,
   updateCampsite,
   insertImage,
+  deleteImage,
+  getImages,
 };

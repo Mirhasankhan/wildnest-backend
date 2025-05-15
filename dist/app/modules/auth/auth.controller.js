@@ -32,6 +32,22 @@ const loginUser = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void
         data: result,
     });
 }));
+const socialLogin = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { userName, email } = req.body;
+    const result = yield auth_service_1.authService.socialLoginIntoDB(userName, email);
+    res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
+    });
+    (0, sendResponse_1.default)(res, {
+        statusCode: 200,
+        success: true,
+        message: "User successfully logged in",
+        data: result,
+    });
+}));
 //send forgot password otp
 const sendForgotPasswordOtp = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const email = req.body.email;
@@ -66,4 +82,10 @@ const resetPassword = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
         data: result,
     });
 }));
-exports.authController = { loginUser, sendForgotPasswordOtp, verifyForgotPasswordOtpCode, resetPassword };
+exports.authController = {
+    loginUser,
+    sendForgotPasswordOtp,
+    verifyForgotPasswordOtpCode,
+    resetPassword,
+    socialLogin
+};

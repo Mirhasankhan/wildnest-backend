@@ -3,9 +3,7 @@ import httpStatus from "http-status";
 import cors from "cors";
 import GlobalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { PrismaClient } from "@prisma/client";
-import path from "path";
 import router from "./app/routes";
-import { fileUploader } from "./helpers/fileUploader";
 
 const app: Application = express();
 const prisma = new PrismaClient();
@@ -22,7 +20,7 @@ prisma
 
 app.use(
   cors({
-    origin: ["http://localhost:3000", "http://localhost:3001"],
+    origin: ["http://localhost:3000", "https://image-gallery-pi-khaki.vercel.app"],
   })
 );
 app.use(express.json());
@@ -41,14 +39,6 @@ app.use("/api/v1", router);
 
 // Global Error Handler
 app.use(GlobalErrorHandler);
-
-// app.post("/upload-profile", fileUploader.updateProfileImage, (req, res) => {
-//   if (!req.file) {
-//     return res.status(400).json({ success: false, message: "No file uploaded" });
-//   }
-
-//   res.json({ success: true, message: "File uploaded successfully", filename: req.file.filename });
-// });
 
 // API Not found handler
 app.use((req: Request, res: Response, next: NextFunction) => {

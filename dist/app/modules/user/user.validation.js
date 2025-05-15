@@ -5,8 +5,6 @@ const zod_1 = require("zod");
 const userRegisterValidationSchema = zod_1.z.object({
     userName: zod_1.z.string().min(2, "User name must be at least 2 characters long"),
     email: zod_1.z.string().email("Invalid email address"),
-    mobile: zod_1.z.string().min(10, "Mobile number at least 10 digit long").optional(),
-    avatar: zod_1.z.string().optional(),
     password: zod_1.z
         .string()
         .min(8, "Password must be at least 8 characters long")
@@ -17,9 +15,13 @@ const userUpdateValidationSchema = zod_1.z.object({
         .string()
         .min(2, "user name must be at least 2 characters long")
         .optional(),
-    mobile: zod_1.z.string().min(10, "Mobile Number at least 10 Digit long").optional(),
+    contact: zod_1.z
+        .string()
+        .min(7, "Mobile Number must be at least 7 digits long")
+        .max(15, "Mobile Number must be at most 15 digits long")
+        .optional(),
     role: zod_1.z.enum(["ADMIN", "USER"]).optional(),
-    status: zod_1.z.enum(["ACTIVE", "BLOCKED", "DELETED"]).optional(),
+    profileImg: zod_1.z.string().url("Profile image must be a valid URL").optional(),
 });
 exports.userValidation = {
     userRegisterValidationSchema,

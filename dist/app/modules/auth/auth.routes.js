@@ -12,6 +12,9 @@ const router = express_1.default.Router();
 router.post("/login", 
 // validateRequest(authValidation.authLoginSchema),
 auth_controller_1.authController.loginUser);
+router.post("/socialLogin", 
+// validateRequest(authValidation.authLoginSchema),
+auth_controller_1.authController.socialLogin);
 router.post("/send-otp", auth_controller_1.authController.sendForgotPasswordOtp);
 router.post("/verify-otp", auth_controller_1.authController.verifyForgotPasswordOtpCode);
 router.patch("/reset-password", (0, auth_1.default)(), auth_controller_1.authController.resetPassword);

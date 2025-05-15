@@ -1,8 +1,8 @@
-import { v2 as cloudinary } from "cloudinary";
+import { v2 as cloudinary, UploadApiResponse } from "cloudinary";
 import multer from "multer";
-import * as fs from "fs";
+import streamifier from "streamifier";
 import config from "../config";
-import { ICloudinaryResponsee, IUploadFile } from "../app/interfaces/file";
+import { IUploadFile } from "../app/interfaces/file";
 
 cloudinary.config({
   cloud_name: config.cloudinary.cloud_name,
@@ -10,14 +10,7 @@ cloudinary.config({
   api_secret: config.cloudinary.api_secret,
 });
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "uploads/");
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.originalname);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({
   storage: storage,
@@ -40,25 +33,26 @@ const upload = multer({
 
 const uploadToCloudinary = async (
   files: IUploadFile[]
-): Promise<ICloudinaryResponsee[]> => {
+): Promise<UploadApiResponse[]> => {
   const uploadPromises = files.map((file) => {
-    return new Promise<ICloudinaryResponsee>((resolve, reject) => {
-      cloudinary.uploader.upload(
-        file.path,
+    return new Promise<UploadApiResponse>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
         {
           resource_type: file.mimetype.startsWith("video") ? "video" : "image",
         },
-        (error: any, result: any) => {
-          fs.unlinkSync(file.path);
-          if (error) {
-            reject(error);
+        (error, result) => {
+          if (error || !result) {
+            reject(error || new Error("Cloudinary upload failed"));
           } else {
             resolve(result);
           }
         }
       );
+
+      streamifier.createReadStream(file.buffer).pipe(stream);
     });
   });
+
   return Promise.all(uploadPromises);
 };
 

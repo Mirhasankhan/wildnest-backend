@@ -11,44 +11,43 @@ datasource db {
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  userName  String
-  email     String    @unique
-  password  String
-  role      UserRole  @default(USER)
-  contact   String?
-  profileImg String?   
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  userName   String
+  email      String   @unique
+  password   String
+  role       UserRole @default(USER)
+  contact    String?
+  profileImg String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
   // Relation to bookings
-  bookings  Booking[]
+  bookings Booking[]
 
   @@map("users")
 }
 
-
 model Campsite {
-  id            String     @id @default(auto()) @map("_id") @db.ObjectId
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   name          String
   description   String
   location      String
   latitude      Float
   longitude     Float
   capacity      Int
-  available     Boolean    @default(true)
+  available     Boolean  @default(true)
   category      Category
   pricePerNight Int
   amenities     String[]
-  images        String[]   
-  createdAt     DateTime   @default(now())
-  updatedAt     DateTime   @updatedAt
+  images        String[]
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   // Relation to bookings
-  bookings      Booking[]
+  bookings Booking[]
 
   // Relation to reviews
-  reviews       Review[]
+  reviews Review[]
 
   @@map("campsites")
 }
@@ -61,24 +60,23 @@ model Booking {
   checkOut   DateTime
   status     String   @default("pending") // pending, confirmed, cancelled
   createdAt  DateTime @default(now())
-  totalStay  Int      
-  totalCost  Float   
+  totalStay  Int
+  totalCost  Float
 
   // Relations
-  user       User     @relation(fields: [userId], references: [id])
-  campsite   Campsite @relation(fields: [campsiteId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+  campsite Campsite @relation(fields: [campsiteId], references: [id])
 
   @@map("bookings")
 }
 
-
 model Review {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  campsite   Campsite @relation(fields: [campsiteId], references: [id])
-  campsiteId String
-  rating     Int      // 1 to 5 stars
+  campsiteId String   @db.ObjectId
+  rating     Int // 1 to 5 stars
   comment    String?
   createdAt  DateTime @default(now())
+  campsite   Campsite @relation(fields: [campsiteId], references: [id])
 
   @@map("reviews")
 }
@@ -94,12 +92,19 @@ model Otp {
   @@map("otps")
 }
 
-enum Category {
-  cabin    @map("cabin")
-  trailer  @map("trailer")
-  tent     @map("tent")
+model Image {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  imageUrls String[]
+  createdAt DateTime @default(now())
+
+  @@map("images")
 }
 
+enum Category {
+  cabin   @map("cabin")
+  trailer @map("trailer")
+  tent    @map("tent")
+}
 
 enum UserRole {
   ADMIN
